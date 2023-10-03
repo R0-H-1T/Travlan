@@ -1,7 +1,7 @@
 CC = gcc
 
 # CFLAGS = -Wall -Wextra -pedantic -std=c99
-LIBS = -lncurses -lmenu -lsqlite3 -lbcrypt
+LIBS = -lncurses -lmenu -lsqlite3 -l:bcrypt.a
 
 # SOURCES = main.c database.c login.c recommendations.c reports.c trips.c
 SOURCES = main.c
