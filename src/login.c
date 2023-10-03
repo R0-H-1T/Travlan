@@ -37,11 +37,10 @@ do_login (int action)
   // echo ();
   wgetstr (win, password);
   // noecho ();
-  mvwprintw (win, 3, 0, "%s", password);
-  wrefresh (win);
 
-  action == 0 ? validate_login (username, password, stdscr)
-              : register_user (username, password, stdscr);
+  action == 0
+      ? validate_login ((const char *)username, (const char *)password, stdscr)
+      : register_user ((const char *)username, (const char *)password, stdscr);
   int ch;
   while ((ch = wgetch (win)) != KEY_BACKSPACE)
     {
@@ -116,82 +115,90 @@ validate_login (const char *username, const char *password, WINDOW *win)
 int
 register_user (const char *username, const char *password, WINDOW *win)
 {
-  char hashed_password[BCRYPT_HASHSIZE];
+  mvwprintw (win, 1, 0, "%s", password);
+  wrefresh (win);
+
   char salt[BCRYPT_HASHSIZE];
+  char hashed_password[BCRYPT_HASHSIZE];
 
-  if (bcrypt_gensalt (0, salt) != 0
-      && bcrypt_hashpw (password, salt, hashed_password) != 0)
+  const char *my_pass = hashed_password;
+  if (bcrypt_gensalt (0, salt) != 0)
     {
-      mvwprintw (win, 0, 0, "Error: Failed to hash password");
-      wrefresh (win);
-      return -1;
+      // err
     }
-  // todo
-  mvwprintw (win, 0, 0, "hash: %s", hashed_password);
-  mvwprintw (win, 1, 0, "salt: %s", salt);
-  wrefresh (win);
-
-  sqlite3 *db;
-  sqlite3_open ("travlan.db", &db);
-
-  char *sql = "INSERT INTO users (username, password, salt) VALUES (?, ?, ?);";
-  sqlite3_stmt *stmt;
-  int rc = sqlite3_prepare_v2 (db, sql, -1, &stmt, 0);
-
-  if (rc != SQLITE_OK)
+  else
     {
-      mvwprintw (win, 0, 0, "Error: Failed to prepare statement");
-      wrefresh (win);
-      // free (hashed_password);
-      sqlite3_close (db);
-      return -1;
-    }
+      if (bcrypt_hashpw (password, salt, hashed_password) != 0)
+        {
+          // err
+        }
+      else
+        {
+          sqlite3 *db;
+          sqlite3_open ("travlan.db", &db);
 
-  rc = sqlite3_bind_text (stmt, 1, username, strlen (username), SQLITE_STATIC);
-  if (rc != SQLITE_OK)
-    {
-      mvwprintw (win, 0, 0, "Error: Failed to bind parameter");
-      wrefresh (win);
-      // free (hashed_password);
-      sqlite3_finalize (stmt);
-      sqlite3_close (db);
-      return -1;
-    }
+          const char *sql = "INSERT INTO users (username, password, salt) "
+                            "VALUES (?, ?, ?);";
+          sqlite3_stmt *stmt;
+          int rc = sqlite3_prepare_v2 (db, sql, -1, &stmt, 0);
 
-  rc = sqlite3_bind_text (stmt, 2, hashed_password, strlen (hashed_password),
-                          SQLITE_STATIC);
-  if (rc != SQLITE_OK)
-    {
-      mvwprintw (win, 0, 0, "Error: Failed to bind parameter");
-      wrefresh (win);
-      sqlite3_finalize (stmt);
-      sqlite3_close (db);
-      return -1;
-    }
+          if (rc != SQLITE_OK)
+            {
+              mvwprintw (win, 0, 0, "Error: Failed to prepare statement");
+              wrefresh (win);
+              // free (hashed_password);
+              sqlite3_close (db);
+              return -1;
+            }
 
-  rc = sqlite3_bind_text (stmt, 3, salt, strlen (salt), SQLITE_STATIC);
-  if (rc != SQLITE_OK)
-    {
-      mvwprintw (win, 0, 0, "Error: Failed to bind parameter");
-      wrefresh (win);
-      sqlite3_finalize (stmt);
-      sqlite3_close (db);
-      return -1;
-    }
+          rc = sqlite3_bind_text (stmt, 1, username, strlen (username),
+                                  SQLITE_STATIC);
+          if (rc != SQLITE_OK)
+            {
+              mvwprintw (win, 0, 0, "Error: Failed to bind parameter");
+              wrefresh (win);
+              // free (hashed_password);
+              sqlite3_finalize (stmt);
+              sqlite3_close (db);
+              return -1;
+            }
 
-  rc = sqlite3_step (stmt);
-  if (rc != SQLITE_DONE)
-    {
-      mvwprintw (win, 0, 0, "Error: Execution failed");
-      wrefresh (win);
-      sqlite3_finalize (stmt);
-      sqlite3_close (db);
-      return -1;
-    }
+          rc = sqlite3_bind_text (stmt, 2, hashed_password,
+                                  strlen (hashed_password), SQLITE_STATIC);
+          if (rc != SQLITE_OK)
+            {
+              mvwprintw (win, 0, 0, "Error: Failed to bind parameter");
+              wrefresh (win);
+              sqlite3_finalize (stmt);
+              sqlite3_close (db);
+              return -1;
+            }
 
-  mvwprintw (win, LINES - 1, 0, "User registered successfully");
-  wrefresh (win);
-  sqlite3_finalize (stmt);
-  sqlite3_close (db);
+          rc = sqlite3_bind_text (stmt, 3, salt, strlen (salt), SQLITE_STATIC);
+          if (rc != SQLITE_OK)
+            {
+              mvwprintw (win, 0, 0, "Error: Failed to bind parameter");
+              wrefresh (win);
+              sqlite3_finalize (stmt);
+              sqlite3_close (db);
+              return -1;
+            }
+
+          rc = sqlite3_step (stmt);
+          if (rc != SQLITE_DONE)
+            {
+              mvwprintw (win, 0, 0, "Error: Execution failed");
+              wrefresh (win);
+              sqlite3_finalize (stmt);
+              sqlite3_close (db);
+              return -1;
+            }
+
+          mvwprintw (win, LINES - 1, 0, "User registered successfully");
+          wrefresh (win);
+          sqlite3_finalize (stmt);
+          sqlite3_close (db);
+        }
+    }
   return 0;
 }
