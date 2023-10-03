@@ -1,7 +1,7 @@
 CC = gcc
 
 # CFLAGS = -Wall -Wextra -pedantic -std=c99
-LIBS = -lncurses -lsqlite3 -lbcrypt
+LIBS = -lncurses -lmenu -lsqlite3 -lbcrypt
 
 # SOURCES = main.c database.c login.c recommendations.c reports.c trips.c
 SOURCES = main.c
@@ -12,7 +12,7 @@ HEADERS = database.h login.h
 INCLUDE_SEARCH_PATH = libbcrypt
 LIBRARY_SEARCH_PATH = libbcrypt
 
-TARGET = travlan
+TARGET = main
 
 all: $(TARGET)
 
@@ -23,3 +23,4 @@ clean:
 	rm -f $(TARGET)
 
 .PHONY:all clean
+

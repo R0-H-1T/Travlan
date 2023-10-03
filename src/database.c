@@ -19,7 +19,8 @@ create_users_table (Database *db)
   char *sql = "CREATE TABLE IF NOT EXISTS users ("
               "id INTEGER PRIMARY KEY AUTOINCREMENT,"
               "username TEXT NOT NULL,"
-              "password TEXT NOT NULL);";
+              "password TEXT NOT NULL,"
+              "salt TEXT NOT NULL);";
 
   int rc = sqlite3_exec (db->db, sql, 0, 0, 0);
   if (rc != SQLITE_OK)
@@ -32,9 +33,10 @@ create_users_table (Database *db)
 }
 
 bool
-insert_user (Database *db, const char *username, const char *hashed_password)
+insert_user (Database *db, const char *username, const char *hashed_password,
+             const char *salt)
 {
-  char *sql = "INSERT INTO users (username, password) VALUES (?, ?);";
+  char *sql = "INSERT INTO users (username, password, salt) VALUES (?, ?, ?);";
   sqlite3_stmt *stmt;
   int rc = sqlite3_prepare_v2 (db->db, sql, -1, &stmt, 0);
 
