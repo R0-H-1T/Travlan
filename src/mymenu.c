@@ -161,11 +161,15 @@ func (MENU *menu, ITEM **menu_items, ITEM *item)
   switch (item_index (item))
     {
     case 0:
+      // LOGIN
       unmount_main_menu (menu, menu_items);
-      do_login ();
+      do_login (0);
       mount_main_menu ();
       break;
     case 1:
+      unmount_main_menu (menu, menu_items);
+      do_login (1);
+      mount_main_menu ();
       break;
     case 2:
       break;
