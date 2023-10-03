@@ -1,6 +1,6 @@
-#include <_menu.c>
 #include <database.c>
 #include <login.c>
+#include <mymenu.c>
 #include <ncurses.h>
 #include <stdio.h>
 
