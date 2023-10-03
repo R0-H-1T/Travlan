@@ -20,10 +20,11 @@ main ()
 
   // setup database
   // bool database_initialized = false;
-  Database *db;
-  init_database (db);
-  // create_users_table (&db);
-  // close_database (&db);
+  // Database *db;
+  // sqlite3 *db;
+  init_database ();
+  // create_users_table (db);
+  // close_database (db);
   // if (init_database (db) && create_users_table (db) && close_database (db))
   //   {
   //     database_initialized = true;
