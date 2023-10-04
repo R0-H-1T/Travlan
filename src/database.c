@@ -1,25 +1,42 @@
 #include "database.h"
 
 bool
-// init_database (sqlite3 *db)
 init_database ()
 {
   sqlite3 *db;
-  // int rc = sqlite3_open ("travlan.db", &(db->db));
   int rc = sqlite3_open ("travlan.db", &db);
   if (rc)
     {
       // Print error message directly to ncurses window
-      // mvprintw (0, 0, "Can't open database: %s\n", sqlite3_errmsg (db->db));
       mvprintw (0, 0, "Can't open database: %s\n", sqlite3_errmsg (db));
+      close_database (db);
       return false;
     }
   else
     {
       create_users_table (db);
-      close_database (db);
+      create_trips_table (db);
     }
 
+  close_database (db);
+  return rc;
+}
+
+bool
+create_trips_table (sqlite3 *db)
+{
+  char *sql = "CREATE TABLE IF NOT EXISTS trips ("
+              "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+              "destination TEXT NOT NULL,"
+              "cost INTEGER NOT NULL,"
+              "days INTEGER NOT NULL);";
+
+  int rc = sqlite3_exec (db, sql, 0, 0, 0);
+  if (rc != SQLITE_OK)
+    {
+      mvprintw (0, 0, "SQL error: %s\n", sqlite3_errmsg (db));
+      return false;
+    }
   return true;
 }
 
@@ -32,12 +49,10 @@ create_users_table (sqlite3 *db)
               "password TEXT NOT NULL,"
               "salt TEXT NOT NULL);";
 
-  // int rc = sqlite3_exec (db->db, sql, 0, 0, 0);
   int rc = sqlite3_exec (db, sql, 0, 0, 0);
   if (rc != SQLITE_OK)
     {
       // Print error message directly to ncurses window
-      // mvprintw (0, 0, "SQL error: %s\n", sqlite3_errmsg (db->db));
       mvprintw (0, 0, "SQL error: %s\n", sqlite3_errmsg (db));
       return false;
     }
@@ -50,7 +65,7 @@ insert_user (sqlite3 *db, const char *username, const char *hashed_password,
 {
   char *sql = "INSERT INTO users (username, password, salt) VALUES (?, ?, ?);";
   sqlite3_stmt *stmt;
-  // int rc = sqlite3_prepare_v2 (db->db, sql, -1, &stmt, 0);
+
   int rc = sqlite3_prepare_v2 (db, sql, -1, &stmt, 0);
 
   if (rc != SQLITE_OK)
@@ -60,15 +75,12 @@ insert_user (sqlite3 *db, const char *username, const char *hashed_password,
       return false;
     }
 
-  // Rest of the code...
-
   return true;
 }
 
 bool
 close_database (sqlite3 *db)
 {
-  // int rc = sqlite3_close (db->db);
   int rc = sqlite3_close (db);
   if (rc == SQLITE_BUSY)
     {
