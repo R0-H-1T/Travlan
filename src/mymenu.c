@@ -1,40 +1,37 @@
 #include "mymenu.h"
+#include "auth.h"
 #include "util.h"
 #include <menu.h>
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
 
+#define QUIT_ON 1
+#define QUIT_OFF 0
 #define CTRLD 4
 
 char *choices[] = {
-  "Login",    "Register",     "Trip Recommendations",
-  "Add Trip", "Trip Summary", (char *)NULL,
+  "Login",        "Register", "Trip Recommendations", "Add Trip",
+  "Trip Summary", "Quit",     (char *)NULL,
 };
+
+int QUIT = QUIT_OFF;
 
 void
 mount_main_menu ()
 {
-  ITEM **menu_items;
-  MENU *menu;
+  QUIT = QUIT_OFF;
   WINDOW *menu_win;
-  // Hide cursor
-  curs_set (0);
+  MENU *menu;
+  ITEM **menu_items;
 
-  int c, n_choices, i;
-  /* Initialize curses */
-  // initscr ();
-  // curs_set (0);
-  // cbreak ();
-  // noecho ();
-  // keypad (stdscr, TRUE);
+  int c, n_choices;
 
   /* Create items */
   n_choices = ARRAY_SIZE (choices);
   menu_items = (ITEM **)calloc (n_choices, sizeof (ITEM *));
-  for (i = 0; i < n_choices; ++i)
+  for (int i = 0; i < n_choices; ++i)
     {
-      // menu_items[i] = new_item (choices[i], choices[i]);
       menu_items[i] = new_item (choices[i], (const char *)NULL);
       set_item_userptr (menu_items[i], func);
     }
@@ -60,8 +57,9 @@ mount_main_menu ()
   mvwaddch (menu_win, 2, 39, ACS_RTEE);
 
   const char const *help[]
-      = { "Use Up and Down arrow keys to navigate",
-          "Press <ENTER> to select an option", "Press <ESC> to quit" };
+      = { "Press Up or Down arrow keys to navigate the menu",
+          "Press <ENTER> to select an option",
+          "Press <BACSPACE> to return back to this menu" };
 
   /*
    * This might look ugly and daunting
@@ -93,18 +91,18 @@ mount_main_menu ()
       mvaddstr (i + 1, left_justify_x, help[i]);
     }
 
-  /* Paint to stdscr */
-  refresh ();
-
   /* Post the menu */
   post_menu (menu);
+  /* Paint help to stdscr */
+  refresh ();
   wrefresh (menu_win);
 
-  /* ASCII 27 for Esc */
   set_escdelay (0);
-  while ((c = wgetch (menu_win)) != KEY_ESC)
+  /* ASCII 27 for Esc */
+  // while ((c = wgetch (menu_win)) != KEY_ESC || QUIT == 0)
+  while (QUIT != QUIT_ON)
     {
-      // wrefresh (menu_win);
+      c = wgetch (menu_win);
       switch (c)
         {
         case KEY_DOWN:
@@ -118,57 +116,45 @@ mount_main_menu ()
           {
             ITEM *cur;
             // Function pointer needs a signature here too
-            void (*f) (MENU *, ITEM **, ITEM *);
+            void (*f) (WINDOW *, MENU *, ITEM **, ITEM *);
 
             cur = current_item (menu);
             f = item_userptr (cur);
-            f (menu, menu_items, cur);
-            // pos_menu_cursor (menu);
+            f (menu_win, menu, menu_items, cur);
+            pos_menu_cursor (menu);
           }
           break;
         default:
           continue;
         }
+      wrefresh (menu_win);
     }
+  unpost_menu (menu);
+  free_menu (menu);
+  for (int i = 0; i < item_count (menu); ++i)
+    free_item (menu_items[i]);
+  endwin ();
 }
 
 void
-print_in_middle (WINDOW *win, int starty, int startx, int width, char *string)
+func (WINDOW *win, MENU *menu, ITEM **menu_items, ITEM *item)
 {
-  int length, x, y;
-  float temp;
-
-  if (win == NULL)
-    win = stdscr;
-  getyx (win, y, x);
-  if (startx != 0)
-    x = startx;
-  if (starty != 0)
-    y = starty;
-  if (width == 0)
-    width = 80;
-
-  length = strlen (string);
-  temp = (width - length) / 2;
-  x = startx + (int)temp;
-  mvwprintw (win, y, x, "%s", string);
-  refresh ();
-}
-
-void
-func (MENU *menu, ITEM **menu_items, ITEM *item)
-{
+  QUIT = QUIT_ON;
   switch (item_index (item))
     {
     case 0:
       // LOGIN
-      unmount_main_menu (menu, menu_items);
-      do_login (0);
-      mount_main_menu ();
+      {
+        // unmount_main_menu (win, menu, menu_items);
+        // QUIT = QUIT_ON;
+        get_credentials_prompt (0);
+        mount_main_menu ();
+      }
       break;
     case 1:
-      unmount_main_menu (menu, menu_items);
-      do_login (1);
+      // unmount_main_menu (win, menu, menu_items);
+      // QUIT = QUIT_ON;
+      get_credentials_prompt (1);
       mount_main_menu ();
       break;
     case 2:
@@ -177,18 +163,39 @@ func (MENU *menu, ITEM **menu_items, ITEM *item)
       break;
     case 4:
       break;
+    case 5:
+      // QUIT = QUIT_ON;
+      // unmount_main_menu (win, menu, menu_items);
+      break;
     default:
       break;
     }
 }
 
+// void
+// unmount_main_menu (WINDOW *win, MENU *menu, ITEM **menu_items)
+// {
+//   /* Unpost and free all the memory taken up */
+//   unpost_menu (menu);
+//   // refresh ();
+//   // wrefresh (win);
+//   for (int i = 0; i < item_count (menu); ++i)
+//     free_item (menu_items[i]);
+//   free_menu (menu);
+//   // wclear (win);
+//   delwin (win);
+//   // clear ();
+//   endwin ();
+// }
+
+// TODO: remove
 void
-unmount_main_menu (MENU *menu, ITEM **menu_items)
+unmount_main_menu (WINDOW *win, MENU *menu, ITEM **menu_items)
 {
-  /* Unpost and free all the memory taken up */
+  wrefresh (win);
   unpost_menu (menu);
   free_menu (menu);
   for (int i = 0; i < item_count (menu); ++i)
     free_item (menu_items[i]);
-  // endwin ();
+  endwin ();
 }

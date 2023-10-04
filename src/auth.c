@@ -1,4 +1,4 @@
-#include "login.h"
+#include "auth.h"
 
 #include <ncurses.h>
 #include <sqlite3.h>
@@ -8,7 +8,7 @@
 #include "bcrypt.h"
 
 int
-do_login (int action)
+get_credentials_prompt (int action)
 {
   char username[BCRYPT_HASHSIZE];
   char password[BCRYPT_HASHSIZE];
@@ -23,24 +23,28 @@ do_login (int action)
   // raw ();
   cbreak ();
 
-  mvwprintw (win, y / 2, (x - strlen ("Enter Username: ")) / 2,
-             "Enter Username: ");
+  curs_set (1);
+  // mvwprintw (win, y / 2, (x - strlen ("Enter Username: ")) / 2,"Enter
+  // Username: ");
+  mvwprintw (win, y / 2, x / 2, "Enter Username: ");
 
   echo ();
   wgetstr (win, username);
   noecho ();
 
-  mvwprintw (win, (y / 2) + 1, (x - strlen ("Enter Password: ")) / 2,
-             "Enter Password: ");
+  // mvwprintw (win, (y / 2) + 1, (x - strlen ("Enter Password: ")) / 2,"Enter
+  // Password: ");
+  mvwprintw (win, (y / 2) + 1, x / 2, "Enter Password: ");
 
   // don't emit password to console
   // echo ();
   wgetstr (win, password);
   // noecho ();
+  curs_set (0);
 
   action == 0
-      ? validate_login ((const char *)username, (const char *)password, stdscr)
-      : register_user ((const char *)username, (const char *)password, stdscr);
+      ? signin ((const char *)username, (const char *)password, stdscr)
+      : signup ((const char *)username, (const char *)password, stdscr);
   int ch;
   while ((ch = wgetch (win)) != KEY_BACKSPACE)
     {
@@ -52,7 +56,7 @@ do_login (int action)
 }
 
 int
-validate_login (const char *username, const char *password, WINDOW *win)
+signin (const char *username, const char *password, WINDOW *win)
 {
   sqlite3 *db;
   int rc = sqlite3_open ("travlan.db", &db);
@@ -91,7 +95,14 @@ validate_login (const char *username, const char *password, WINDOW *win)
           // TODO
           if (bcrypt_checkpw (password, hashed_password) == 0)
             {
-              mvprintw (0, 0, "LOGIN SUCCESSFUL");
+              // mvprintw (getcury (win) + 2, getcurx (win),"Hello, %s. You're
+              // now signed in.", username);
+              int y, x;
+              getmaxyx (stdscr, y, x);
+              clear ();
+              mvprintw (y / 2, x / 2, "Hello, %s. You're now signed in.",
+                        username);
+
               wrefresh (win);
               sqlite3_finalize (stmt);
               sqlite3_close (db);
@@ -113,11 +124,8 @@ validate_login (const char *username, const char *password, WINDOW *win)
 }
 
 int
-register_user (const char *username, const char *password, WINDOW *win)
+signup (const char *username, const char *password, WINDOW *win)
 {
-  mvwprintw (win, 1, 0, "%s", password);
-  wrefresh (win);
-
   char salt[BCRYPT_HASHSIZE];
   char hashed_password[BCRYPT_HASHSIZE];
 
@@ -194,7 +202,8 @@ register_user (const char *username, const char *password, WINDOW *win)
               return -1;
             }
 
-          mvwprintw (win, LINES - 1, 0, "User registered successfully");
+          mvwprintw (win, getcury (win), getcurx (win),
+                     "Hello, %s. You're now signed up.", username);
           wrefresh (win);
           sqlite3_finalize (stmt);
           sqlite3_close (db);

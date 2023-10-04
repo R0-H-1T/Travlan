@@ -1,18 +1,12 @@
-#ifndef LOGIN_H
-#define LOGIN_H
+#ifndef AUTH_H
+#define AUTH_H
 
 #include <ncurses.h>
 #include <sqlite3.h>
 
 // Function declarations
-int do_login (int action);
-// int validate_login (sqlite3 *db, const char *username, const char *password,
-//                     WINDOW *win);
-int validate_login (const char *username, const char *password, WINDOW *win);
-// int register_user (sqlite3 *db, const char *username, const char *password,
-//                    WINDOW *win);
-int register_user (const char *username, const char *password, WINDOW *win);
-int get_login_credentials (WINDOW *win, char *username, char *password);
-int get_registration_credentials (WINDOW *win, char *username, char *password);
+int signin (const char *username, const char *password, WINDOW *win);
+int signup (const char *username, const char *password, WINDOW *win);
+int get_credentials_prompt (int action);
 
-#endif // LOGIN_H
+#endif // AUTH_H

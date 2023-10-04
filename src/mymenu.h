@@ -6,8 +6,7 @@
 
 // Function declarations
 void mount_main_menu ();
-void unmount_main_menu (MENU *menu, ITEM **menu_items);
-void func (MENU *menu, ITEM **menu_items, ITEM *item);
-void print_in_middle (WINDOW *win, int starty, int startx, int width,
-                      char *string);
+void unmount_main_menu (WINDOW *win, MENU *menu, ITEM **menu_items);
+void func (WINDOW *win, MENU *menu, ITEM **menu_items, ITEM *item);
+
 #endif // MYMENU_H
