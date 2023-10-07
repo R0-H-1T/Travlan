@@ -58,7 +58,7 @@ mount_main_menu ()
   mvwaddch (menu_win, 2, 39, ACS_RTEE);
 
   const char const *help[]
-      = { "Press Up or Down arrow keys to navigate the menu",
+      = { "Use Up or Down arrow keys to navigate the menu",
           "Press <ENTER> to select an option",
           "Press <BACSPACE> to return back to this menu" };
 

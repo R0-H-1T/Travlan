@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+// #include <cstring.h>
 
 /*
  *
@@ -51,7 +52,10 @@ load_recommendations_from_csv ()
             }
           else
             {
-              travArray[count].cost = strdup (token);
+              // fgets() takes the newline as this is the last column
+              // get rid of it
+              int upto = (int)strcspn ((const char *)token, "\r\n");
+              travArray[count].cost = strndup (token, upto);
             }
           step++;
           token = strtok (NULL, ",");
@@ -74,16 +78,16 @@ load_recommendations_from_csv ()
 
 //   // int i = 0;
 //   // while (t[i].destination != NULL && t[i].days != NULL && t[i].cost !=
-//   NULL)
+//   // NULL)
 //   //   {
 //   //     printf ("%s %s %s", t[i].destination, t[i].days, t[i].cost);
 //   //     printf ("%s %s %s", t[i].destination, t[i].days, t[i].cost);
 //   //     i++;
 //   //   }
 //   TRIP *temp = t;
-//   while (temp->destination != NULL)
+//   while (temp->cost != NULL)
 //     {
-//       printf ("\t%s", temp->destination);
+//       printf ("%s", temp->cost);
 //       temp++;
 //     }
 //   free (t);

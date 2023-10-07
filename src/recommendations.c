@@ -85,11 +85,24 @@ recommendations_menu ()
   post_menu (my_menu);
   wrefresh (my_menu_win);
 
-  mvprintw (0 + 1,
+  int help_alignment
+      = strlen ("Use PageUp and PageDown to scoll down or up a page")
+                > strlen ("Use Up or Down arrow keys to navigate the menu")
+            ? strlen ("Use PageUp and PageDown to scoll down or up a page")
+            : strlen ("Use PageUp and PageDown to scoll down or up a page");
+  strlen ("Use Up or Down arrow keys to navigate the menu");
+
+  mvprintw (0 + 1, help_alignment,
+            "Use Up or Down arrow keys to navigate the menu");
+  mvprintw (0 + 2, help_alignment,
+            "Use PageUp and PageDown to scoll down or up a page");
+  /* mvprintw (0 + 1,
             (COLS - strlen ("Use PageUp and PageDown to scoll down or up"))
                 / 2,
             "Use PageUp and PageDown to scoll down or up");
-  // mvprintw (LINES - 1, 0, "Arrow Keys to navigate (F1 to Exit)");
+ */
+  /* print_in_middle (stdscr, 0 + 2, 0, getmaxx (stdscr),
+                   "Use Up or Down arrow keys to navigate the menu"); */
   refresh ();
 
   while ((c = wgetch (my_menu_win)) != KEY_BACKSPACE)
