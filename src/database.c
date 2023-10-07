@@ -26,10 +26,13 @@ bool
 create_trips_table (sqlite3 *db)
 {
   char *sql = "CREATE TABLE IF NOT EXISTS trips ("
-              "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+              "id INTEGER PRIMARY KEY,"
+              "user_id INTEGER NOT NULL,"
               "destination TEXT NOT NULL,"
               "cost INTEGER NOT NULL,"
-              "days INTEGER NOT NULL);";
+              "days INTEGER NOT NULL,"
+              "FOREIGN KEY (user_id)"
+              "REFERENCES users(id));";
 
   int rc = sqlite3_exec (db, sql, 0, 0, 0);
   if (rc != SQLITE_OK)
@@ -44,7 +47,7 @@ bool
 create_users_table (sqlite3 *db)
 {
   char *sql = "CREATE TABLE IF NOT EXISTS users ("
-              "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+              "id INTEGER PRIMARY KEY,"
               "username TEXT NOT NULL,"
               "password TEXT NOT NULL,"
               "salt TEXT NOT NULL);";
@@ -77,6 +80,24 @@ insert_user (sqlite3 *db, const char *username, const char *hashed_password,
 
   return true;
 }
+
+// bool
+// insert_trip (sqlite3 *db, )
+// {
+//   char *sql = "INSERT INTO trips (destination, cost, days) VALUES (?, ?,
+//   ?);"; sqlite3_stmt *stmt;
+
+//   int rc = sqlite3_prepare_v2 (db, sql, -1, &stmt, 0);
+
+//   if (rc != SQLITE_OK)
+//     {
+//       // Print error message directly to ncurses window
+//       mvprintw (0, 0, "Error: Failed to prepare statement\n");
+//       return false;
+//     }
+
+//   return true;
+// }
 
 bool
 close_database (sqlite3 *db)

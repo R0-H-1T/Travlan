@@ -13,10 +13,10 @@ main ()
   cbreak ();
   noecho ();
   // Allow Keyboard events
-  // keypad (stdscr, TRUE);
+  keypad (stdscr, TRUE);
 
-  // int yMax, xMax;
-  // getmaxyx (stdscr, yMax, xMax);
+  int yMax, xMax;
+  getmaxyx (stdscr, yMax, xMax);
   keypad (stdscr, false);
   curs_set (0);
   init_database ();

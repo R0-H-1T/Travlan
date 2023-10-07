@@ -9,77 +9,83 @@
  *   display_destination returns a pointer to a travlan structure
  */
 
-typedef struct travlan
+typedef struct TRIP
 {
-    char *destination;
-    char *days;
-    char *cost;
-} trav;
+  char *destination;
+  char *days;
+  char *cost;
+} TRIP;
 
-trav *display_destinations()
+TRIP *
+load_recommendations_from_csv ()
 {
-    FILE *csv_file = fopen("../data/trips.csv", "r");
+  FILE *csv_file = fopen ("../data/trips.csv", "r");
 
-    if (csv_file == NULL)
+  if (csv_file == NULL)
     {
-        perror("Failed to open the CSV file");
-        exit(0);
+      return (TRIP *)NULL;
     }
 
-    char line[100]; // Adjust the buffer size as needed
-    int count = 0;
-    while (fgets(line, sizeof(line), csv_file) != NULL)
+  char line[100]; // Adjust the buffer size as needed
+  int count = 0;
+  while (fgets (line, sizeof (line), csv_file) != NULL)
     {
-        count++;
+      count++;
     }
-    rewind(csv_file);
-    trav *travArray = (trav *)malloc((count + 1) * sizeof(trav));
-
-    count = 0;
-    while (fgets(line, sizeof(line), csv_file) != NULL)
+  rewind (csv_file);
+  TRIP *travArray = (TRIP *)malloc ((count + 1) * sizeof (TRIP));
+  count = 0;
+  while (fgets (line, sizeof (line), csv_file) != NULL)
     {
-        char *token = strtok(line, ",");
-        int step = 0;
-        while (token != NULL)
+      char *token = strtok (line, ",");
+      int step = 0;
+      while (token != NULL)
         {
-            if (step == 0)
+          if (step == 0)
             {
-                travArray[count].destination = strdup(token);
+              travArray[count].destination = strdup (token);
             }
-            else if (step == 1)
+          else if (step == 1)
             {
-                travArray[count].days = strdup(token);
+              travArray[count].days = strdup (token);
             }
-            else
+          else
             {
-                travArray[count].cost = strdup(token);
+              travArray[count].cost = strdup (token);
             }
-            step++;
-            token = strtok(NULL, ",");
+          step++;
+          token = strtok (NULL, ",");
         }
-        printf("\n");
-        count++;
+      count++;
     }
-    travArray[count].destination = (char *)NULL;
-    travArray[count].days = (char *)NULL;
-    travArray[count].cost = (char *)NULL;
+  travArray[count].destination = (char *)NULL;
+  travArray[count].days = (char *)NULL;
+  travArray[count].cost = (char *)NULL;
 
-    fclose(csv_file);
+  fclose (csv_file);
 
-    return travArray;
+  return travArray;
 }
 
-// int main()
+// int
+// main ()
 // {
-//     trav *t = display_destinations();
+//   TRIP *t = load_recommendations_from_csv ();
 
-//     int i = 0;
-//     while (t[i].destination != NULL && t[i].days != NULL && t[i].cost != NULL)
+//   // int i = 0;
+//   // while (t[i].destination != NULL && t[i].days != NULL && t[i].cost !=
+//   NULL)
+//   //   {
+//   //     printf ("%s %s %s", t[i].destination, t[i].days, t[i].cost);
+//   //     printf ("%s %s %s", t[i].destination, t[i].days, t[i].cost);
+//   //     i++;
+//   //   }
+//   TRIP *temp = t;
+//   while (temp->destination != NULL)
 //     {
-//         printf("%s %s %s", t[i].destination, t[i].days, t[i].cost);
-//         i++;
+//       printf ("\t%s", temp->destination);
+//       temp++;
 //     }
-
-//     free(t);
-//     return 0;
+//   free (t);
+//   return 0;
 // }

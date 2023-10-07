@@ -1,5 +1,6 @@
 #include "mymenu.h"
 #include "auth.h"
+#include "recommendations.h"
 #include "util.h"
 #include <menu.h>
 #include <ncurses.h>
@@ -8,7 +9,6 @@
 
 #define QUIT_ON 1
 #define QUIT_OFF 0
-#define CTRLD 4
 
 char *choices[] = {
   "Login",        "Register", "Trip Recommendations", "Add Trip",
@@ -16,6 +16,7 @@ char *choices[] = {
 };
 
 int QUIT = QUIT_OFF;
+int USER_ID = -1;
 
 void
 mount_main_menu ()
@@ -147,6 +148,8 @@ func (WINDOW *win, MENU *menu, ITEM **menu_items, ITEM *item)
       {
         // unmount_main_menu (win, menu, menu_items);
         // QUIT = QUIT_ON;
+        wclear (stdscr);
+        wclear (stdscr);
         get_credentials_prompt (0);
         mount_main_menu ();
       }
@@ -154,17 +157,23 @@ func (WINDOW *win, MENU *menu, ITEM **menu_items, ITEM *item)
     case 1:
       // unmount_main_menu (win, menu, menu_items);
       // QUIT = QUIT_ON;
+      wclear (stdscr);
       get_credentials_prompt (1);
       mount_main_menu ();
       break;
     case 2:
+      // unmount_main_menu (win, menu, menu_items);
+      // QUIT = QUIT_OFF;
+      wclear (stdscr);
+      recommendations_menu ();
+      mount_main_menu ();
       break;
     case 3:
       break;
     case 4:
       break;
     case 5:
-      // QUIT = QUIT_ON;
+      QUIT = QUIT_ON;
       // unmount_main_menu (win, menu, menu_items);
       break;
     default:
@@ -192,7 +201,12 @@ func (WINDOW *win, MENU *menu, ITEM **menu_items, ITEM *item)
 void
 unmount_main_menu (WINDOW *win, MENU *menu, ITEM **menu_items)
 {
-  wrefresh (win);
+  // wrefresh (win);
+  // unpost_menu (menu);
+  // free_menu (menu);
+  // for (int i = 0; i < item_count (menu); ++i)
+  //   free_item (menu_items[i]);
+  // endwin ();
   unpost_menu (menu);
   free_menu (menu);
   for (int i = 0; i < item_count (menu); ++i)

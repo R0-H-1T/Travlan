@@ -110,7 +110,10 @@ signin (const char *username, const char *password, WINDOW *win)
             }
           else
             {
-              mvwprintw (win, 0, 0, "Invalid username or password");
+              int y, x;
+              getmaxyx (stdscr, y, x);
+              clear ();
+              mvprintw (y / 2, x / 2, "Invalid username or password!");
               wrefresh (win);
             }
         }
