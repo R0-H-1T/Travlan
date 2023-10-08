@@ -152,6 +152,7 @@ recommendations_menu (int64_t rowid)
           trip.cost = trips[i].cost;
           // printf ("%s", trip.destination);
           test (rowid, &trip);
+          insert_trip(&trip, rowid);
           // menu_items ();
           pos_menu_cursor (my_menu);
           refresh ();
