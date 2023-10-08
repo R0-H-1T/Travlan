@@ -291,12 +291,15 @@ read_trips (int64_t rowid)
 
               while (rc == SQLITE_ROW)
                 {
-                  trips[i].destination = sqlite3_column_text (stmt, 2);
-                  trips[i].cost = sqlite3_column_text (stmt, 3);
-                  trips[i].days = sqlite3_column_text (stmt, 4);
-                  clrtoeol ();
-                  mvprintw (0, 0, "%s", trips[i].destination);
-                  refresh ();
+                  trips[i].destination
+                      = strdup ((const char *)sqlite3_column_text (stmt, 2));
+                  trips[i].cost
+                      = strdup ((const char *)sqlite3_column_text (stmt, 3));
+                  trips[i].days
+                      = strdup ((const char *)sqlite3_column_text (stmt, 4));
+                  // clrtoeol ();
+                  // mvprintw (0, 0, "%s", trips[i].destination);
+                  // refresh ();
                   rc = sqlite3_step (stmt);
                   i++;
                 }

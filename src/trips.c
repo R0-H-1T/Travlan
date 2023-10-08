@@ -2,6 +2,131 @@
 #include "database.h"
 
 void
+summarize (int64_t rowid)
+{
+
+  int y;
+  int x;
+
+  getmaxyx (stdscr, y, x);
+
+  WINDOW *win = newwin (y, x, 0, 0);
+
+  keypad (win, TRUE);
+  cbreak ();
+  curs_set (0);
+
+  if (rowid == INT64_MIN)
+    {
+      mvwprintw (win, y / 2,
+                 (x - strlen ("You'll need to login to view trip summary."))
+                     / 2,
+                 "You'll need to login to view trip summary.");
+      wrefresh (win);
+    }
+  else
+    {
+      TRIP *t = read_trips (rowid);
+      TRIP *temp = t;
+
+      float totalCost = 0;
+      int totalDays = 0;
+
+      float maxCost = 0;
+      int maxDays = 0;
+
+      int aboveAvgCount = 0;
+
+      int atoi_cost;
+      int atoi_days;
+
+      char maxCostName[64];
+      char maxDaysName[64];
+
+      while (temp->destination != (const char *)NULL
+             && temp->cost != (const char *)NULL
+             && temp->days != (const char *)NULL)
+        {
+
+          atoi_cost = atoi (temp->cost);
+          atoi_days = atoi (temp->days);
+          totalCost += atoi_cost;
+          totalDays += atoi_days;
+
+          if (atoi_cost > totalCost)
+            {
+              maxCost = atoi_cost;
+              strncpy (maxCostName, temp->destination, 64 - 1);
+            }
+          if (atoi_days > maxDays)
+            {
+              maxDays = atoi_days;
+              strncpy (maxDaysName, temp->destination, 64 - 1);
+            }
+
+          temp++;
+        }
+
+      float avgCostPerDay = totalCost / totalDays;
+      temp = t;
+      while (temp->destination != (const char *)NULL
+             && temp->cost != (const char *)NULL
+             && temp->days != (const char *)NULL)
+        {
+          if (atoi (temp->cost) > avgCostPerDay)
+            {
+              aboveAvgCount++;
+            }
+          temp++;
+        }
+
+      int left_justify_x = 0;
+      const char *summary_text[]
+          = { "Total estimated cost: %.2f", "Average cost per day: %.2f",
+              "Most expensive destination: %s",
+              "Destination with maximum days: %s",
+              "Destinations costing above average: %d" };
+      //  (const char *)NULL };
+      for (int i = 0; i < ARRAY_SIZE (summary_text); i++)
+        {
+          if (left_justify_x < strlen (summary_text[i]))
+            {
+              left_justify_x = strlen (summary_text[i]);
+            }
+        }
+
+      // box (win, (y / 2) - (6 + 1), left_justify_x);
+      print_in_middle (win, y / 2 - 6, (x - left_justify_x) / 2,
+                       strlen ("Trip Summary"), "Tip Summary");
+      mvwaddch (win, y / 2 - 6 + 1, (x - left_justify_x) / 2 - 2, ACS_LTEE);
+      mvwhline (win, y / 2 - 6 + 1, (x - left_justify_x) / 2, ACS_HLINE,
+                left_justify_x + 2);
+      mvwaddch (win, y / 2 - 6 + 1, (x - (x - left_justify_x) / 2), ACS_RTEE);
+
+      // mvwprintw (win, y / 2 - 6, (x - left_justify_x) / 2, "Trip Summary:
+      // ");
+      mvwprintw (win, y / 2 - 6 + 2, (x - left_justify_x) / 2,
+                 "Total estimated cost: %.2f", totalCost);
+      mvwprintw (win, y / 2 - 6 + 3, (x - left_justify_x) / 2,
+                 "Average cost per day: %.2f", avgCostPerDay);
+      mvwprintw (win, y / 2 - 6 + 4, (x - left_justify_x) / 2,
+                 "Most expensive destination: %s", maxCostName);
+      mvwprintw (win, y / 2 - 6 + 5, (x - left_justify_x) / 2,
+                 "Destination with maximum days: %s", maxDaysName);
+      mvwprintw (win, y / 2 - 6 + 6, (x - left_justify_x) / 2,
+                 "Destinations costing above average: %d", aboveAvgCount);
+      wrefresh (win);
+    }
+  int ch;
+  while ((ch = wgetch (win)) != KEY_BACKSPACE)
+    {
+      /* code */
+    }
+  wclear (stdscr);
+  delwin (win);
+}
+
+void
 add_trip (int64_t rowid)
 {
   int y, x;

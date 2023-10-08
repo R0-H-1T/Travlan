@@ -1,9 +1,10 @@
 #ifndef TRIP_H
 #define TRIP_H
+#include "util.h"
 #include <ncurses.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
 
 typedef struct TRIP
 {

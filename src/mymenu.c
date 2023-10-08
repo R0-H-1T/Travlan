@@ -8,7 +8,6 @@
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
-#include "trips.h"
 
 #define QUIT_ON 1
 #define QUIT_OFF 0
@@ -148,26 +147,18 @@ func (WINDOW *win, MENU *menu, ITEM **menu_items, ITEM *item)
   switch (item_index (item))
     {
     case 0:
-      // LOGIN
       {
-        // unmount_main_menu (win, menu, menu_items);
-        // QUIT = QUIT_ON;
-        // wclear (stdscr);
         wclear (stdscr);
         USER_ID = get_credentials_prompt (0);
         mount_main_menu ();
       }
       break;
     case 1:
-      // unmount_main_menu (win, menu, menu_items);
-      // QUIT = QUIT_ON;
       wclear (stdscr);
       get_credentials_prompt (1);
       mount_main_menu ();
       break;
     case 2:
-      // unmount_main_menu (win, menu, menu_items);
-      // QUIT = QUIT_OFF;
       wclear (stdscr);
       recommendations_menu (USER_ID);
       mount_main_menu ();
@@ -184,7 +175,6 @@ func (WINDOW *win, MENU *menu, ITEM **menu_items, ITEM *item)
       break;
     case 5:
       QUIT = QUIT_ON;
-      // unmount_main_menu (win, menu, menu_items);
       break;
     default:
       break;
