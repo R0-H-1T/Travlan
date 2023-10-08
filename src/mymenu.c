@@ -1,6 +1,7 @@
 #include "mymenu.h"
 #include "auth.h"
 #include "recommendations.h"
+#include "trips.h"
 #include "util.h"
 #include <menu.h>
 #include <ncurses.h>
@@ -170,6 +171,9 @@ func (WINDOW *win, MENU *menu, ITEM **menu_items, ITEM *item)
       mount_main_menu ();
       break;
     case 3:
+      wclear (stdscr);
+      add_trip (USER_ID);
+      mount_main_menu ();
       break;
     case 4:
       break;
