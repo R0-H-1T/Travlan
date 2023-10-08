@@ -1,11 +1,18 @@
 #ifndef TRIP_H
 #define TRIP_H
 
-struct trip
+// struct trip
+// {
+//   char *destination;
+//   unsigned int *days;
+// };
+// typedef struct trip TRIP;kw
+
+typedef struct TRIP
 {
   char *destination;
-  unsigned int *days;
-};
+  char *days;
+  char *cost;
+} TRIP;
 
-typedef struct trip TRIP;
 #endif

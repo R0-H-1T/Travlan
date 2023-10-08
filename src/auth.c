@@ -24,17 +24,17 @@ get_credentials_prompt (int action)
   cbreak ();
 
   curs_set (1);
-  // mvwprintw (win, y / 2, (x - strlen ("Enter Username: ")) / 2,"Enter
-  // Username: ");
-  mvwprintw (win, y / 2, x / 2, "Enter Username: ");
+  mvwprintw (win, y / 2, (x - strlen ("Enter Username: ")) / 2,
+             "Enter Username: ");
+  // mvwprintw (win, y / 2, x / 2, "Enter Username: ");
 
   echo ();
   wgetstr (win, username);
   noecho ();
 
-  // mvwprintw (win, (y / 2) + 1, (x - strlen ("Enter Password: ")) / 2,"Enter
-  // Password: ");
-  mvwprintw (win, (y / 2) + 1, x / 2, "Enter Password: ");
+  mvwprintw (win, (y / 2) + 1, (x - strlen ("Enter Password: ")) / 2,
+             "Enter Password: ");
+  // mvwprintw (win, (y / 2) + 1, x / 2, "Enter Password: ");
 
   // don't emit password to console
   // echo ();
@@ -113,7 +113,10 @@ signin (const char *username, const char *password, WINDOW *win)
               int y, x;
               getmaxyx (stdscr, y, x);
               clear ();
-              mvprintw (y / 2, x / 2, "Invalid username or password!");
+              // mvprintw (y / 2, x / 2, "Invalid username or password!");
+              mvprintw (y / 2,
+                        (x - strlen ("Invalid username or password!")) / 2,
+                        "Invalid username or password!");
               wrefresh (win);
             }
         }

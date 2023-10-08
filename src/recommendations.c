@@ -9,47 +9,54 @@
 void
 recommendations_menu ()
 {
+  noecho ();
   ITEM **my_items;
   int c;
   MENU *my_menu;
   WINDOW *my_menu_win;
-  // int n_choices, i;
-
-  /* Initialize curses */
-  // initscr ();
-  // cbreak ();
-  // noecho ();
-  // keypad (stdscr, TRUE);
-
-  /* Create items */
-  // n_choices = ARRAY_SIZE (choices);
-  // my_items = (ITEM **)calloc (n_choices, sizeof (ITEM *));
-  // for (i = 0; i < n_choices; ++i)
-  // my_items[i] = new_item (choices[i], choices[i]);
 
   // TODO
   TRIP *trips = load_recommendations_from_csv ();
   TRIP *temp = trips;
 
   int i = 0;
+  int width = 0;
   while (temp->destination != NULL && temp->cost != NULL && temp->days != NULL)
     {
       i++;
       temp++;
+      // TODO fix i
+      if (i < 135)
+        width = strlen (temp->cost) + 1 > width
+                    ? strlen (temp->cost) + 1
+                    : width; // for $ sign infront of price
     }
 
   temp = trips;
-  // mvprintw (0, 0, "count of trips: %d", i);
-  // refresh ();
   my_items = (ITEM **)calloc (i, sizeof (ITEM *));
   // reassigning it to trips
   // as temp has moved to the end of the memory block
   i = 0;
+  int c_width;
   while (temp->destination != NULL && temp->cost != NULL && temp->days != NULL)
     {
-      my_items[i] = new_item ((const char *)temp->destination,
-                              (const char *)temp->days);
+
+      int buffer_size = strlen ((temp->days)) + strlen ((temp->cost));
+      char *buffer = (char *)calloc (buffer_size * 10, sizeof (char));
+
+      if (strlen (temp->cost) + 1 == width)
+        {
+          c_width = width;
+        }
+      else
+        {
+          c_width = width + 1;
+        }
+
+      sprintf (buffer, "$%s%*s days", temp->cost, c_width, temp->days);
       // TODO:  fix i trips are counted wrong
+      my_items[i]
+          = new_item ((const char *)temp->destination, (const char *)buffer);
       if (i < 135)
         i++;
       temp++;
@@ -60,7 +67,7 @@ recommendations_menu ()
 
   /* Create the window to be associated with the menu */
   // my_menu_win = newwin (10, 40, 4, 4);
-  my_menu_win = newwin (10, 40, (LINES - 10) / 2, (COLS - 40) / 2);
+  my_menu_win = newwin (LINES - 4, COLS, 4, 0);
   // int y, x;
   // getmaxyx (stdscr, y, x);
   // my_menu_win = newwin (y, x, 4, 4);
@@ -68,18 +75,19 @@ recommendations_menu ()
 
   /* Set main window and sub window */
   set_menu_win (my_menu, my_menu_win);
-  set_menu_sub (my_menu, derwin (my_menu_win, 6, 38, 3, 1));
-  set_menu_format (my_menu, 5, 1);
+
+  set_menu_sub (my_menu, derwin (my_menu_win, LINES - 4 - 4, COLS - 2, 3, 1));
+  set_menu_format (my_menu, LINES - 4 - 4, 0);
 
   /* Set menu mark to the string " > " */
   set_menu_mark (my_menu, " > ");
 
-  /* Print a border around the main window and print a title */
+  /* Print a border around the main wi ndow and print a title */
   box (my_menu_win, 0, 0);
-  print_in_middle (my_menu_win, 1, 0, 40, "Recommendations");
+  print_in_middle (my_menu_win, 1, 0, COLS, "Recommendations");
   mvwaddch (my_menu_win, 2, 0, ACS_LTEE);
-  mvwhline (my_menu_win, 2, 1, ACS_HLINE, 38);
-  mvwaddch (my_menu_win, 2, 39, ACS_RTEE);
+  mvwhline (my_menu_win, 2, 1, ACS_HLINE, COLS - 2);
+  mvwaddch (my_menu_win, 2, COLS - 1, ACS_RTEE);
 
   /* Post the menu */
   post_menu (my_menu);
@@ -129,12 +137,16 @@ recommendations_menu ()
           cur = current_item (my_menu);
           //   f = item_userptr (cur);
           //   f (menu_win, menu, menu_items, cur);
-          //   pos_menu_cursor (menu);
+          pos_menu_cursor (my_menu);
           move (0, 0);
           clrtoeol ();
-          mvprintw (0, 0, "%s", item_name (cur));
+          int i = item_index (cur);
+          mvprintw (0, 0, "Destination: %s, Days: %s, Cost: %s",
+                    trips[i].destination, trips[i].days, trips[i].cost);
+          // menu_items ();
           refresh ();
           break;
+          // item_
         }
       wrefresh (my_menu_win);
     }

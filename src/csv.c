@@ -1,14 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// #include <cstring.h>
-
-/*
- *
- *   int main is declared below
- *   need to have a different header file for the structure of travlan
- *   display_destination returns a pointer to a travlan structure
- */
 
 typedef struct TRIP
 {
