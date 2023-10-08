@@ -141,8 +141,8 @@ recommendations_menu (int64_t rowid)
           move (0, 0);
           clrtoeol ();
           int i = item_index (cur);
-          mvprintw (0, 0, "Destination: %s, Days: %s, Cost: %s",
-                    trips[i].destination, trips[i].days, trips[i].cost);
+          // mvprintw (0, 0, "Destination: %s, Days: %s, Cost: %s",
+          // trips[i].destination, trips[i].days, trips[i].cost);
           TRIP trip;
           // strcpy (trip->destination, trips[i].destination);
           // strcpy (trip->days, trips[i].days);
@@ -151,8 +151,8 @@ recommendations_menu (int64_t rowid)
           trip.days = trips[i].days;
           trip.cost = trips[i].cost;
           // printf ("%s", trip.destination);
-          test (rowid, &trip);
-          insert_trip(&trip, rowid);
+          // test (rowid, &trip);
+          insert_trip (&trip, rowid);
           // menu_items ();
           pos_menu_cursor (my_menu);
           refresh ();

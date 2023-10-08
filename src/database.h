@@ -17,8 +17,8 @@ bool insert_user (sqlite3 *db, const char *username,
                   const char *hashed_password, const char *salt);
 // bool insert_trip (sqlite3 *db, const char *username,
 //   const char *hashed_password, co nst char *salt);
-bool insert_trip (TRIP *t, int64_t uid);
+bool insert_trip (TRIP *, int64_t);
 bool close_database (sqlite3 *db);
-void test (int64_t, TRIP *);
+// void test (int64_t, TRIP *);
 
 #endif
