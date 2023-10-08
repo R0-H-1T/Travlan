@@ -18,6 +18,7 @@ bool insert_user (sqlite3 *db, const char *username,
                   const char *hashed_password, const char *salt);
 int read_trips_count (int64_t);
 TRIP *read_trips (int64_t);
+bool insert_trip (TRIP *, int64_t);
 bool close_database (sqlite3 *db);
 
 #endif
