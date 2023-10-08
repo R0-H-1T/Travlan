@@ -1,6 +1,7 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
+#include "trips.h"
 #include <ncurses.h>
 #include <sqlite3.h>
 #include <stdbool.h>
@@ -14,8 +15,9 @@ bool create_trips_table (sqlite3 *db);
 bool create_users_table (sqlite3 *db);
 bool insert_user (sqlite3 *db, const char *username,
                   const char *hashed_password, const char *salt);
-bool insert_trip (sqlite3 *db, const char *username,
-                  const char *hashed_password, const char *salt);
+// bool insert_trip (sqlite3 *db, const char *username,
+//   const char *hashed_password, co nst char *salt);
 bool close_database (sqlite3 *db);
+void test (int64_t, TRIP *);
 
 #endif

@@ -1,4 +1,6 @@
 #include "database.h"
+// #include "trips.h"
+// #include <csv.c>
 
 bool
 init_database ()
@@ -115,4 +117,11 @@ close_database (sqlite3 *db)
       return false;
     }
   return true;
+}
+
+void
+test (int64_t rowid, TRIP *t)
+{
+  printf ("* %s\t%s\t%s", t->destination, t->days, t->cost);
+  printf ("user is %ld", rowid);
 }

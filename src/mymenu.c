@@ -16,7 +16,8 @@ char *choices[] = {
 };
 
 int QUIT = QUIT_OFF;
-int USER_ID = -1;
+// TODO: -1 can be assigned by sqlite3
+int64_t USER_ID = INT64_MIN;
 
 void
 mount_main_menu ()
@@ -148,9 +149,9 @@ func (WINDOW *win, MENU *menu, ITEM **menu_items, ITEM *item)
       {
         // unmount_main_menu (win, menu, menu_items);
         // QUIT = QUIT_ON;
+        // wclear (stdscr);
         wclear (stdscr);
-        wclear (stdscr);
-        get_credentials_prompt (0);
+        USER_ID = get_credentials_prompt (0);
         mount_main_menu ();
       }
       break;
@@ -165,7 +166,7 @@ func (WINDOW *win, MENU *menu, ITEM **menu_items, ITEM *item)
       // unmount_main_menu (win, menu, menu_items);
       // QUIT = QUIT_OFF;
       wclear (stdscr);
-      recommendations_menu ();
+      recommendations_menu (USER_ID);
       mount_main_menu ();
       break;
     case 3:

@@ -1,13 +1,14 @@
 #include "auth.h"
+#include "bcrypt.h"
 
+#include <limits.h>
 #include <ncurses.h>
 #include <sqlite3.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "bcrypt.h"
-
-int
+int64_t
 get_credentials_prompt (int action)
 {
   char username[BCRYPT_HASHSIZE];
@@ -37,14 +38,21 @@ get_credentials_prompt (int action)
   // mvwprintw (win, (y / 2) + 1, x / 2, "Enter Password: ");
 
   // don't emit password to console
-  // echo ();
   wgetstr (win, password);
-  // noecho ();
   curs_set (0);
 
-  action == 0
+  /* action == 0
       ? signin ((const char *)username, (const char *)password, stdscr)
-      : signup ((const char *)username, (const char *)password, stdscr);
+      : signup ((const char *)username, (const char *)password, stdscr); */
+  int64_t rc = INT64_MIN;
+  if (action == 0)
+    {
+      rc = signin ((const char *)username, (const char *)password, stdscr);
+    }
+  else
+    {
+      signup ((const char *)username, (const char *)password, stdscr);
+    }
   int ch;
   while ((ch = wgetch (win)) != KEY_BACKSPACE)
     {
@@ -52,10 +60,10 @@ get_credentials_prompt (int action)
     }
   wclear (stdscr);
   delwin (win);
-  return 0; // Add error handling if needed
+  return rc; // Add error handling if needed
 }
 
-int
+int64_t
 signin (const char *username, const char *password, WINDOW *win)
 {
   sqlite3 *db;
@@ -71,7 +79,7 @@ signin (const char *username, const char *password, WINDOW *win)
           mvwprintw (win, 0, 0, "Error: Failed to prepare statement");
           wrefresh (win);
           sqlite3_close (db);
-          return -1;
+          return INT64_MIN;
         }
 
       rc = sqlite3_bind_text (stmt, 1, username, strlen (username),
@@ -83,13 +91,14 @@ signin (const char *username, const char *password, WINDOW *win)
           wrefresh (win);
           sqlite3_finalize (stmt);
           sqlite3_close (db);
-          return -1;
+          return INT64_MIN;
         }
 
       rc = sqlite3_step (stmt);
 
       if (rc == SQLITE_ROW)
         {
+          int64_t rowid = (int64_t)sqlite3_column_int64 (stmt, 0);
           const char *hashed_password
               = (const char *)sqlite3_column_text (stmt, 2);
           // TODO
@@ -100,13 +109,16 @@ signin (const char *username, const char *password, WINDOW *win)
               int y, x;
               getmaxyx (stdscr, y, x);
               clear ();
-              mvprintw (y / 2, x / 2, "Hello, %s. You're now signed in.",
-                        username);
+              // mvprintw (y / 2, x / 2, "Hello, %s. You're now signed in.",
+              //           username);
+              mvprintw (y / 2,
+                        (x - strlen ("Hello, %s. You're now signed in.")) / 2,
+                        "Hello, %s. You're now signed in.", username);
 
               wrefresh (win);
               sqlite3_finalize (stmt);
               sqlite3_close (db);
-              return 1; // Login successful
+              return rowid; // Login successful
             }
           else
             {
@@ -120,13 +132,23 @@ signin (const char *username, const char *password, WINDOW *win)
               wrefresh (win);
             }
         }
+      else
+        {
+          int y, x;
+          getmaxyx (stdscr, y, x);
+          clear ();
+          mvprintw (y / 2,
+                    (x - strlen ("You're not signed up! Please do.")) / 2,
+                    "You're not signed up! Please do.");
+          wrefresh (win);
+        }
 
       sqlite3_finalize (stmt);
       sqlite3_close (db);
-      return 0; // Incorrect username or password
+      return INT64_MIN; // Incorrect username or password
     }
   sqlite3_close (db);
-  return -1;
+  return INT64_MIN;
 }
 
 int
@@ -208,8 +230,12 @@ signup (const char *username, const char *password, WINDOW *win)
               return -1;
             }
 
-          mvwprintw (win, getcury (win), getcurx (win),
-                     "Hello, %s. You're now signed up.", username);
+          int y, x;
+          getmaxyx (stdscr, y, x);
+          mvprintw (y / 2,
+                    (x - strlen ("Hello, %s. You're now signed up.")) / 2,
+                    "Hello, %s. You're now signed up.", username);
+          refresh ();
           wrefresh (win);
           sqlite3_finalize (stmt);
           sqlite3_close (db);

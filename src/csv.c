@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <trips.h>
 
-typedef struct TRIP
-{
-  char *destination;
-  char *days;
-  char *cost;
-} TRIP;
+// typedef struct TRIP
+// {
+//   char *destination;
+//   char *days;
+//   char *cost;
+// } TRIP;
 
 TRIP *
 load_recommendations_from_csv ()

@@ -1,5 +1,6 @@
 #include "util.h"
 #include <csv.c>
+#include <database.h>
 #include <menu.h>
 #include <ncurses.h>
 #include <stdio.h>
@@ -7,7 +8,7 @@
 #include <string.h>
 
 void
-recommendations_menu ()
+recommendations_menu (int64_t rowid)
 {
   noecho ();
   ITEM **my_items;
@@ -137,13 +138,22 @@ recommendations_menu ()
           cur = current_item (my_menu);
           //   f = item_userptr (cur);
           //   f (menu_win, menu, menu_items, cur);
-          pos_menu_cursor (my_menu);
           move (0, 0);
           clrtoeol ();
           int i = item_index (cur);
           mvprintw (0, 0, "Destination: %s, Days: %s, Cost: %s",
                     trips[i].destination, trips[i].days, trips[i].cost);
+          TRIP trip;
+          // strcpy (trip->destination, trips[i].destination);
+          // strcpy (trip->days, trips[i].days);
+          // strcpy (trip->cost, trips[i].cost);
+          trip.destination = trips[i].destination;
+          trip.days = trips[i].days;
+          trip.cost = trips[i].cost;
+          // printf ("%s", trip.destination);
+          test (rowid, &trip);
           // menu_items ();
+          pos_menu_cursor (my_menu);
           refresh ();
           break;
           // item_
