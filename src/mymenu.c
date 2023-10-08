@@ -1,11 +1,13 @@
 #include "mymenu.h"
 #include "auth.h"
+#include "database.h"
 #include "recommendations.h"
 #include "util.h"
 #include <menu.h>
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
+#include "trips.h"
 
 #define QUIT_ON 1
 #define QUIT_OFF 0
@@ -172,6 +174,9 @@ func (WINDOW *win, MENU *menu, ITEM **menu_items, ITEM *item)
     case 3:
       break;
     case 4:
+      wclear (stdscr);
+      summarize (USER_ID);
+      mount_main_menu ();
       break;
     case 5:
       QUIT = QUIT_ON;

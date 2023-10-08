@@ -4,10 +4,10 @@ CC = gcc
 LIBS = -lncurses -lmenu -lsqlite3 -l:bcrypt.a
 
 # SOURCES = main.c database.c login.c mymenu.c recommendations.c reports.c trips.c
-SOURCES = main.c database.c auth.c mymenu.c util.c recommendations.c
+SOURCES = main.c database.c auth.c mymenu.c util.c recommendations.c trips.c
 
 # HEADERS = database.h login.h mymenu.h recommendations.h reports.h trips.h
-HEADERS = database.h auth.h mymenu.h util.h recommendations.h
+HEADERS = database.h auth.h mymenu.h util.h recommendations.h trips.h
 
 INCLUDE_SEARCH_PATH = libbcrypt
 LIBRARY_SEARCH_PATH = libbcrypt

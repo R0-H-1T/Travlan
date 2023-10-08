@@ -151,7 +151,7 @@ recommendations_menu (int64_t rowid)
           trip.days = trips[i].days;
           trip.cost = trips[i].cost;
           // printf ("%s", trip.destination);
-          test (rowid, &trip);
+          // test (rowid, &trip);
           // menu_items ();
           pos_menu_cursor (my_menu);
           refresh ();
