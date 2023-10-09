@@ -39,7 +39,7 @@ mount_main_menu ()
       menu_items[i] = new_item (choices[i], (const char *)NULL);
       set_item_userptr (menu_items[i], func);
     }
-  /* Crate menu */
+  /* Create menu */
   menu = new_menu ((ITEM **)menu_items);
 
   /* Create the window to be associated with the menu */

@@ -8,13 +8,30 @@ summarize (int64_t rowid)
   int y;
   int x;
 
+  clear ();
   getmaxyx (stdscr, y, x);
 
-  WINDOW *win = newwin (y, x, 0, 0);
+  // WINDOW *win = newwin (y, x, 0, 0);
+  int left_justify_x = 0;
+  const char *summary_text[]
+      = { "Total estimated cost: %.2f", "Average cost per day: %.2f",
+          "Most expensive destination: %s",
+          "Destination with maximum days: %s",
+          "Destinations costing above average: %d" };
+  //  (const char *)NULL };
+  for (int i = 0; i < ARRAY_SIZE (summary_text); i++)
+    {
+      if (left_justify_x < strlen (summary_text[i]))
+        {
+          left_justify_x = strlen (summary_text[i]);
+        }
+    }
+  WINDOW *win = newwin (10, x / 2, (y - 10) / 2, left_justify_x);
 
   keypad (win, TRUE);
   cbreak ();
   curs_set (0);
+  noecho ();
 
   if (rowid == INT64_MIN)
     {
@@ -56,14 +73,17 @@ summarize (int64_t rowid)
           if (atoi_cost > totalCost)
             {
               maxCost = atoi_cost;
-              strncpy (maxCostName, temp->destination, 64 - 1);
+              strncpy (maxCostName, temp->destination,
+                       strlen (temp->destination));
             }
           if (atoi_days > maxDays)
             {
               maxDays = atoi_days;
-              strncpy (maxDaysName, temp->destination, 64 - 1);
+              strncpy (maxDaysName, temp->destination,
+                       strlen (temp->destination));
             }
-
+          // mvwprintw (stdscr, 2, 0, "%s", maxDaysName);
+          wrefresh (stdscr);
           temp++;
         }
 
@@ -80,41 +100,56 @@ summarize (int64_t rowid)
           temp++;
         }
 
-      int left_justify_x = 0;
-      const char *summary_text[]
-          = { "Total estimated cost: %.2f", "Average cost per day: %.2f",
-              "Most expensive destination: %s",
-              "Destination with maximum days: %s",
-              "Destinations costing above average: %d" };
-      //  (const char *)NULL };
-      for (int i = 0; i < ARRAY_SIZE (summary_text); i++)
-        {
-          if (left_justify_x < strlen (summary_text[i]))
-            {
-              left_justify_x = strlen (summary_text[i]);
-            }
-        }
+      // int left_justify_x = 0;
+      // const char *summary_text[]
+      //     = { "Total estimated cost: %.2f", "Average cost per day: %.2f",
+      //         "Most expensive destination: %s",
+      //         "Destination with maximum days: %s",
+      //         "Destinations costing above average: %d" };
+      // //  (const char *)NULL };
+      // for (int i = 0; i < ARRAY_SIZE (summary_text); i++)
+      //   {
+      //     if (left_justify_x < strlen (summary_text[i]))
+      //       {
+      //         left_justify_x = strlen (summary_text[i]);
+      //       }
+      //   }
 
-      // box (win, (y / 2) - (6 + 1), left_justify_x);
-      print_in_middle (win, y / 2 - 6, (x - left_justify_x) / 2,
-                       strlen ("Trip Summary"), "Tip Summary");
-      mvwaddch (win, y / 2 - 6 + 1, (x - left_justify_x) / 2 - 2, ACS_LTEE);
-      mvwhline (win, y / 2 - 6 + 1, (x - left_justify_x) / 2, ACS_HLINE,
-                left_justify_x + 2);
-      mvwaddch (win, y / 2 - 6 + 1, (x - (x - left_justify_x) / 2), ACS_RTEE);
+      // box (win, (y / 2) - (6 + 1), left_justify_x - 1);
+      box (win, 0, 0);
+      // print_in_middle (win, y / 2 - 6, 0, x, "Trip Summary");
+      print_in_middle (win, 1, 0, x / 2, "Trip Summary");
+
+      // print_in_middle (win, y / 2 - 6, (x - left_justify_x) / 2,
+      //  strlen ("Trip Summary"), "Tip Summary");
+      mvwaddch (win, 2, 0, ACS_LTEE);
+      // mvwhline (win, (y / 2) - (6 - 1), (x - left_justify_x) / 2, ACS_HLINE,
+      // left_justify_x + 2);
+      mvwhline (win, 2, 1, ACS_HLINE, x / 2 - 2);
+      mvwaddch (win, 2, x / 2 - 1, ACS_RTEE);
 
       // mvwprintw (win, y / 2 - 6, (x - left_justify_x) / 2, "Trip Summary:
       // ");
-      mvwprintw (win, y / 2 - 6 + 2, (x - left_justify_x) / 2,
-                 "Total estimated cost: %.2f", totalCost);
-      mvwprintw (win, y / 2 - 6 + 3, (x - left_justify_x) / 2,
-                 "Average cost per day: %.2f", avgCostPerDay);
-      mvwprintw (win, y / 2 - 6 + 4, (x - left_justify_x) / 2,
-                 "Most expensive destination: %s", maxCostName);
-      mvwprintw (win, y / 2 - 6 + 5, (x - left_justify_x) / 2,
-                 "Destination with maximum days: %s", maxDaysName);
-      mvwprintw (win, y / 2 - 6 + 6, (x - left_justify_x) / 2,
+      mvwprintw (win, 1 + 1 + 1, 1 + 1, "Total estimated cost: %.2f",
+                 totalCost);
+      mvwprintw (win, 2 + 1 + 1, 1 + 1, "Average cost per day: %.2f",
+                 avgCostPerDay);
+      mvwprintw (win, 3 + 1 + 1, 1 + 1, "Most expensive destination: %s",
+                 maxCostName);
+      mvwprintw (win, 4 + 1 + 1, 1 + 1, "Destination with maximum days: %s",
+                 maxDaysName);
+      mvwprintw (win, 5 + 1 + 1, 1 + 1,
                  "Destinations costing above average: %d", aboveAvgCount);
+      // mvwprintw (win, y / 2 - 6 + 2, (x - left_justify_x) / 2,
+      //            "Total estimated cost: %.2f", totalCost);
+      // mvwprintw (win, y / 2 - 6 + 3, (x - left_justify_x) / 2,
+      //            "Average cost per day: %.2f", avgCostPerDay);
+      // mvwprintw (win, y / 2 - 6 + 4, (x - left_justify_x) / 2,
+      //            "Most expensive destination: %s", maxCostName);
+      // mvwprintw (win, y / 2 - 6 + 5, (x - left_justify_x) / 2,
+      //            "Destination with maximum days: %s", maxDaysName);
+      // mvwprintw (win, y / 2 - 6 + 6, (x - left_justify_x) / 2,
+      //            "Destinations costing above average: %d", aboveAvgCount);
       wrefresh (win);
     }
   int ch;
