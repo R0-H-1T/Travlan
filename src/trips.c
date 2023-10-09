@@ -60,6 +60,7 @@ summarize (int64_t rowid)
       char maxCostName[64];
       char maxDaysName[64];
 
+      int trip_count = 0;
       while (temp->destination != (const char *)NULL
              && temp->cost != (const char *)NULL
              && temp->days != (const char *)NULL)
@@ -85,15 +86,18 @@ summarize (int64_t rowid)
               maxDaysName[strlen (temp->destination)] = '\0';
             }
           temp++;
+          trip_count++;
         }
 
+      float avgCost = totalCost / trip_count;
       float avgCostPerDay = totalCost / totalDays;
       temp = t;
       while (temp->destination != (const char *)NULL
              && temp->cost != (const char *)NULL
              && temp->days != (const char *)NULL)
         {
-          if (atoi (temp->cost) > avgCostPerDay)
+          // if (atoi (temp->cost) > avgCostPerDay)
+          if (atoi (temp->cost) > avgCost)
             {
               aboveAvgCount++;
             }
@@ -115,7 +119,8 @@ summarize (int64_t rowid)
                  maxCostName);
       mvwprintw (win, 4 + 1 + 1, 1 + 1, "Destination with maximum days: %s",
                  maxDaysName);
-      mvwprintw (win, 5 + 1 + 1, 1 + 1,
+      mvwprintw (win, 5 + 1 + 1, 1 + 1, "Average Cost: %.2f", avgCost);
+      mvwprintw (win, 6 + 1 + 1, 1 + 1,
                  "Destinations costing above average: %d", aboveAvgCount);
       wrefresh (win);
     }
